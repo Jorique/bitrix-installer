@@ -25,7 +25,7 @@ class ModuleInstaller extends LibraryInstaller
         } else {
             throw new \Exception(
                 'Unable to install module, composer.json must contain module name declaration like this: ' .
-                '"extra": { "bitrix_module_name": "somename" } '
+                '"extra": { "module_name": "somename" } '
             );
         }
 
