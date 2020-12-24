@@ -10,7 +10,7 @@
         }
     ],
     "autoload": {
-        "psr-4": {"Jorique\\BitrixPluginForComposer\\": "src/"}
+        "psr-4": {"Jorique\\BitrixModuleInstaller\\": "src/"}
     },
     "extra": {
         "class": "Jorique\\BitrixModuleInstaller\\Plugin"
