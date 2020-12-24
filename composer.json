@@ -1,0 +1,21 @@
+{
+    "name": "jorique/bitrix-installer",
+    "type": "composer-plugin",
+    "license": "MIT",
+    "description" : "Bitrix modules and components installation plugin. Plugin adds modules to /bitrix/modules/{$vendor}.{$name} location, component to /bitrix/{$vendor}/{$name}",
+    "authors": [
+        {
+            "name": "Alexander Zhuravlev",
+            "email": "a.jorique@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Jorique\\BitrixPluginForComposer\\": "src/"}
+    },
+    "extra": {
+        "class": "Jorique\\BitrixModuleInstaller\\Plugin"
+    },
+    "require": {
+        "composer-plugin-api": "^1.0 || ^2.0"
+    }
+}
