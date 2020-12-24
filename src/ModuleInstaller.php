@@ -16,7 +16,7 @@ class ModuleInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
-    public function getPackageBasePath(PackageInterface $package)
+    /*public function getPackageBasePath(PackageInterface $package)
     {
         $extras = $package->getExtra();
 
@@ -30,6 +30,11 @@ class ModuleInstaller extends LibraryInstaller
         }
 
         return 'bitrix/modules/'.$name;
+    }*/
+
+    public function getInstallPath(PackageInterface $package)
+    {
+        return 'bitrix/modules/'.$package->getExtra()['module_name'];
     }
 
     /**
