@@ -11,7 +11,7 @@ use Composer\Installer\LibraryInstaller;
  */
 class ModuleInstaller extends LibraryInstaller
 {
-    const PACKAGE_TYPE = 'bitrix-module-installer';
+    const PACKAGE_TYPE = 'bitrix-module';
 
     /**
      * {@inheritDoc}
@@ -20,8 +20,8 @@ class ModuleInstaller extends LibraryInstaller
     {
         $extras = $package->getExtra();
 
-        if ((array_key_exists('bitrix_module_name', $extras)) && (!empty($extras['bitrix_module_name']))) {
-            $name = (string)$extras['bitrix_module_name'];
+        if ((array_key_exists('module_name', $extras)) && (!empty($extras['module_name']))) {
+            $name = (string)$extras['module_name'];
         } else {
             throw new \Exception(
                 'Unable to install module, composer.json must contain module name declaration like this: ' .
