@@ -2,8 +2,9 @@
 
 namespace Jorique\BitrixModuleInstaller;
 
-use Composer\Package\PackageInterface;
 use Composer\Installer\LibraryInstaller;
+use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
 
 /**
  * Class ModuleInstaller
@@ -43,5 +44,42 @@ class ModuleInstaller extends LibraryInstaller
     public function supports($packageType)
     {
         return self::PACKAGE_TYPE === $packageType;
+    }
+
+    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        parent::install($repo, $package);
+        $name = explode("/", $package->getName());
+        $this->initBitrix($package);
+        $module = $this->getModule($name[1]);
+        $module->DoInstall();
+    }
+
+    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        $name = explode("/", $package->getName());
+        $this->initBitrix($package);
+        $module = $this->getModule($name[1]);
+        $module->DoUninstall();
+        parent::uninstall($repo, $package);
+    }
+
+    protected function initBitrix(PackageInterface $package)
+    {
+        $_SERVER['DOCUMENT_ROOT'] = realpath($this->getInstallPath($package).'/../../../');
+        define('STOP_STATISTICS', true);
+        define("NO_KEEP_STATISTIC", "Y");
+        define("NO_AGENT_STATISTIC", "Y");
+        define("NOT_CHECK_PERMISSIONS", true);
+        require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
+        $GLOBALS['APPLICATION']->RestartBuffer();
+    }
+
+    protected function getModule($module)
+    {
+        include_once $_SERVER['DOCUMENT_ROOT'] . "/local/modules/" . $module . "/install/index.php";
+        $class = str_replace(".", "_", $module);
+        $module = new $class();
+        return $module;
     }
 }
