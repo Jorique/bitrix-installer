@@ -57,7 +57,7 @@ class ModuleInstaller extends LibraryInstaller
 
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        $name = explode("/", $package->getName());
+        $name = $package->getExtra()['module_name'];
         $this->initBitrix($package);
         $module = $this->getModule($name[1]);
         $module->DoUninstall();
