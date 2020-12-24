@@ -77,7 +77,7 @@ class ModuleInstaller extends LibraryInstaller
 
     protected function getModule($module)
     {
-        include_once $_SERVER['DOCUMENT_ROOT'] . "/local/modules/" . $module . "/install/index.php";
+        require_once $_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/" . $module . "/install/index.php";
         $class = str_replace(".", "_", $module);
         if (!class_exists($class)) {
             throw new \Exception("Class $class does not exist");
