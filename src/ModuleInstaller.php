@@ -79,6 +79,9 @@ class ModuleInstaller extends LibraryInstaller
     {
         include_once $_SERVER['DOCUMENT_ROOT'] . "/local/modules/" . $module . "/install/index.php";
         $class = str_replace(".", "_", $module);
+        if (!class_exists($class)) {
+            throw new \Exception("Class $class does not exist");
+        }
         $module = new $class();
         return $module;
     }
