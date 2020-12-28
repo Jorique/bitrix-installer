@@ -51,16 +51,20 @@ class ModuleInstaller extends LibraryInstaller
         parent::install($repo, $package);
         $name = $package->getExtra()['module_name'];
         $this->initBitrix($package);
-        $module = $this->getModule($name);
-        $module->DoInstall();
+        if (!\CModule::IncludeModule($name)) {
+            $module = $this->getModule($name);
+            $module->DoInstall();
+        }
     }
 
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         $name = $package->getExtra()['module_name'];
         $this->initBitrix($package);
-        $module = $this->getModule($name);
-        $module->DoUninstall();
+        if (!\CModule::IncludeModule($name)) {
+            $module = $this->getModule($name);
+            $module->DoUninstall();
+        }
         parent::uninstall($repo, $package);
     }
 
