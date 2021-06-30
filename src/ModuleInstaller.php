@@ -33,9 +33,16 @@ class ModuleInstaller extends LibraryInstaller
         return 'bitrix/modules/'.$name;
     }*/
 
+    protected function getInstallDir(PackageInterface $package)
+    {
+        $extra = $package->getExtra();
+
+        return isset($extra['install_dir']) ? trim($extra['install_dir'], '/') : 'bitrix/modules';
+    }
+
     public function getInstallPath(PackageInterface $package)
     {
-        return 'bitrix/modules/'.$package->getExtra()['module_name'];
+        return $this->getInstallDir($package).'/'.$package->getExtra()['module_name'];
     }
 
     /**
@@ -52,7 +59,7 @@ class ModuleInstaller extends LibraryInstaller
         $name = $package->getExtra()['module_name'];
         $this->initBitrix($package);
         if (!\CModule::IncludeModule($name)) {
-            $module = $this->getModule($name);
+            $module = $this->getModule($package, $name);
             $module->DoInstall();
         }
     }
@@ -62,15 +69,31 @@ class ModuleInstaller extends LibraryInstaller
         $name = $package->getExtra()['module_name'];
         $this->initBitrix($package);
         if (!\CModule::IncludeModule($name)) {
-            $module = $this->getModule($name);
+            $module = $this->getModule($package, $name);
             $module->DoUninstall();
         }
         parent::uninstall($repo, $package);
     }
 
+    protected function getDocumentRoot(PackageInterface $package)
+    {
+        $installDir = $this->getInstallDir($package);
+        $searchDir = realpath($installDir);
+        while (true) {
+            $searchFile = $searchDir.'/bitrix/modules/main/include/prolog_before.php';
+            if (file_exists($searchFile)) {
+                return $searchDir;
+            }
+            if ($searchDir === '/') {
+                throw new \Exception('Can not found document root');
+            }
+            $searchDir = realpath($searchDir.'/../');
+        }
+    }
+
     protected function initBitrix(PackageInterface $package)
     {
-        $_SERVER['DOCUMENT_ROOT'] = realpath($this->getInstallPath($package).'/../../../');
+        $_SERVER['DOCUMENT_ROOT'] = $this->getDocumentRoot($package);
         define('STOP_STATISTICS', true);
         define("NO_KEEP_STATISTIC", "Y");
         define("NO_AGENT_STATISTIC", "Y");
@@ -79,9 +102,10 @@ class ModuleInstaller extends LibraryInstaller
         $GLOBALS['APPLICATION']->RestartBuffer();
     }
 
-    protected function getModule($module)
+    protected function getModule(PackageInterface $package, $module)
     {
-        require_once $_SERVER['DOCUMENT_ROOT'] . "/bitrix/modules/" . $module . "/install/index.php";
+        $installDir = $this->getInstallDir($package);
+        require_once $_SERVER['DOCUMENT_ROOT']."/$installDir/".$module."/install/index.php";
         $class = str_replace(".", "_", $module);
         if (!class_exists($class)) {
             throw new \Exception("Class $class does not exist");
