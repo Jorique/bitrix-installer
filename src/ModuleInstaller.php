@@ -42,7 +42,11 @@ class ModuleInstaller extends LibraryInstaller
 
     public function getInstallPath(PackageInterface $package)
     {
-        return $this->getInstallDir($package).'/'.$package->getExtra()['module_name'];
+        $documentRoot = $this->getDocumentRoot($package);
+        $installDir = $this->getInstallDir($package);
+        $moduleName = $package->getExtra()['module_name'];
+
+        return "$documentRoot/$installDir/$moduleName";
     }
 
     /**
@@ -77,8 +81,8 @@ class ModuleInstaller extends LibraryInstaller
 
     protected function getDocumentRoot(PackageInterface $package)
     {
-        $installDir = $this->getInstallDir($package);
-        $searchDir = realpath($installDir);
+        $initDir = dirname(realpath(\Composer\Factory::getComposerFile()));
+        $searchDir = realpath($initDir);
         while (true) {
             $searchFile = $searchDir.'/bitrix/modules/main/include/prolog_before.php';
             if (file_exists($searchFile)) {
