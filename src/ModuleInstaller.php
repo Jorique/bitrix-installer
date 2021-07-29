@@ -5,6 +5,7 @@ namespace Jorique\BitrixModuleInstaller;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
+use React\Promise\PromiseInterface;
 
 /**
  * Class ModuleInstaller
@@ -59,24 +60,40 @@ class ModuleInstaller extends LibraryInstaller
 
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        parent::install($repo, $package);
-        $name = $package->getExtra()['module_name'];
-        $this->initBitrix($package);
-        if (!\CModule::IncludeModule($name)) {
-            $module = $this->getModule($package, $name);
-            $module->DoInstall();
+        $promise = parent::install($repo, $package);
+        $callback = function () use ($repo, $package) {
+            $name = $package->getExtra()['module_name'];
+            $this->initBitrix($package);
+            if (!\CModule::IncludeModule($name)) {
+                $module = $this->getModule($package, $name);
+                $module->DoInstall();
+            }
+        };
+        // Composer v2 might return a promise here
+        if ($promise instanceof PromiseInterface) {
+            return $promise->then($callback);
         }
+
+        $callback();
     }
 
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        $name = $package->getExtra()['module_name'];
-        $this->initBitrix($package);
-        if (!\CModule::IncludeModule($name)) {
-            $module = $this->getModule($package, $name);
-            $module->DoUninstall();
+        $promise = parent::uninstall($repo, $package);
+        $callback = function () {
+            $name = $package->getExtra()['module_name'];
+            $this->initBitrix($package);
+            if (!\CModule::IncludeModule($name)) {
+                $module = $this->getModule($package, $name);
+                $module->DoUninstall();
+            }
+        };
+        // Composer v2 might return a promise here
+        if ($promise instanceof PromiseInterface) {
+            return $promise->then($callback);
         }
-        parent::uninstall($repo, $package);
+
+        $callback();
     }
 
     protected function getDocumentRoot(PackageInterface $package)
