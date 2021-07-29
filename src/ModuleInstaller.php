@@ -80,7 +80,7 @@ class ModuleInstaller extends LibraryInstaller
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         $promise = parent::uninstall($repo, $package);
-        $callback = function () {
+        $callback = function () use ($repo, $package) {
             $name = $package->getExtra()['module_name'];
             $this->initBitrix($package);
             if (!\CModule::IncludeModule($name)) {
